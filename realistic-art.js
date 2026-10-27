@@ -1,5 +1,8 @@
 /* 实体时尚娃娃渲染：摄影质感套装、局部发色和鞋色，以及独立配饰。 */
 (()=>{
+Art.items.push(...ExtraOutfits);
+const themes={'pink-gala':'礼服','blue-summer':'日常','pink-suit':'职业','black-date':'礼服','lilac-ballet':'礼服','cream-summer':'日常'};
+Art.items.forEach(item=>{if(item.cat==='dress'&&!item.theme)item.theme=themes[item.id]||'主题'});
 const hairFilters={
  'gold-hair':'',
  'brown-hair':'<feColorMatrix type="saturate" values=".65"/><feComponentTransfer><feFuncR type="linear" slope=".55"/><feFuncG type="linear" slope=".4"/><feFuncB type="linear" slope=".32"/></feComponentTransfer>',

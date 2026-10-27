@@ -1,5 +1,9 @@
 const $=s=>document.querySelector(s);
-const categories=[['dress','♧','时装','一件连衣裙，一整个好心情'],['shoes','♧','鞋色','穿上喜欢的鞋，去喜欢的地方'],['accessory','♢','配饰','小小点缀，也要闪闪发光']];
+const categories=[['dress','♧','时装','日常、职业、运动与礼服，每天都有新角色'],['shoes','♧','鞋色','穿上喜欢的鞋，去喜欢的地方'],['accessory','♢','配饰','小小点缀，也要闪闪发光']];
+let outfitTheme='全部';
+const themeBar=document.createElement('div');themeBar.className='outfit-themes';themeBar.setAttribute('aria-label','服装风格');
+$('#items').before(themeBar);
+themeBar.onclick=e=>{const b=e.target.closest('[data-theme]');if(b){outfitTheme=b.dataset.theme;renderItems()}};
 const sceneColors=['#f6e8e7','#e9e8f3','#e6ede6','#f1e7d5'];
 const initial={dress:'pink-gala',hair:'gold-hair',shoes:'rose-heels',accessory:'pearl',scene:0};
 let state={...initial},category='dress',history=[],saved=[],savedView=false,toastTimer;
@@ -8,6 +12,22 @@ function toast(text){$('#toast').textContent=text;$('#toast').classList.add('sho
 function change(next){history.push({...state});if(history.length>50)history.shift();state={...state,...next};render()}
 function render(){ $('#doll').innerHTML=Art.svg(Art.doll(state));$('#stage').style.background=sceneColors[state.scene]||sceneColors[0];$('#scenes').innerHTML=sceneColors.map((color,i)=>`<button class="swatch ${state.scene===i?'selected':''}" style="background:${color}" data-scene="${i}" aria-label="背景颜色 ${i+1}" aria-pressed="${state.scene===i}"></button>`).join('');$('#saveCount').textContent=saved.length;$('#undo').disabled=!history.length;renderItems() }
 function renderItems(){ $('#panelTitle').innerHTML=savedView?'我的心动收藏 <span>♡</span>':'打开你的心动衣橱 <span>♡</span>';$('#total').textContent=savedView?`${saved.length} 套珍藏`:`${Art.items.length} 件心动单品`;$('#categories').style.display=savedView?'none':'flex';$('#collectionTitle').textContent=savedView?'把喜欢的自己，好好收藏':categories.find(c=>c[0]===category)[3];const list=savedView?saved:Art.items.filter(x=>x.cat===category);$('#itemCount').textContent=`${list.length} ${savedView?'套搭配':'件单品'}`;$('#items').innerHTML=list.length?list.map((item,i)=>savedView?`<div class="item"><button class="delete-save" data-delete="${i}" title="删除这套收藏" aria-label="删除收藏 ${i+1}">×</button><button class="saved-look" data-look="${i}" style="border:0;background:none;width:100%;padding:0"><div class="saved-art">${Art.svg(Art.doll(item))}</div><span class="item-label">心动搭配 ${String(i+1).padStart(2,'0')}</span><span class="item-sub">CLICK TO WEAR</span></button></div>`:`<button class="item ${state[category]===item.id?'selected':''}" data-item="${item.id}" draggable="true" aria-label="穿上${item.name}" aria-pressed="${state[category]===item.id}"><span class="item-art">${Art.thumbnail(item)}</span><span class="item-label">${item.name}</span><span class="item-sub">${item.en}</span></button>`).join(''):'<p class="empty">♡<br><br>还没有收藏，先搭一套喜欢的吧。</p>';$('#categories').innerHTML=categories.map(([id,icon,name])=>`<button class="category ${category===id?'selected':''}" data-cat="${id}" aria-pressed="${category===id}"><b>${icon}</b>${name}</button>`).join('') }
+const renderAllItems=renderItems;
+renderItems=function(){
+ renderAllItems();
+ const visible=!savedView&&category==='dress';
+ themeBar.style.display=visible?'flex':'none';
+ if(!visible)return;
+ const themes=['全部','日常','职业','运动','礼服','主题'];
+ themeBar.innerHTML=themes.map(theme=>`<button data-theme="${theme}" aria-pressed="${theme===outfitTheme}" class="${theme===outfitTheme?'selected':''}">${theme}</button>`).join('');
+ let count=0;
+ document.querySelectorAll('#items [data-item]').forEach(button=>{
+  const item=Art.items.find(item=>item.id===button.dataset.item);
+  button.hidden=outfitTheme!=='全部'&&item.theme!==outfitTheme;
+  if(!button.hidden)count++;
+ });
+ $('#itemCount').textContent=`${count} 套服装`;
+};
 function wear(id){const item=Art.items.find(x=>x.id===id);if(item)change({[item.cat]:state[item.cat]===id&&item.cat==='accessory'?null:id})}
 function persist(){try{localStorage.setItem('paper-atelier-looks',JSON.stringify(saved));return true}catch{toast('浏览器未允许保存，收藏暂留在本页');return false}}
 $('#categories').onclick=e=>{const b=e.target.closest('[data-cat]');if(b){category=b.dataset.cat;renderItems()}};

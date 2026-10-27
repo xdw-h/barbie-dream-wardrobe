@@ -1,0 +1,5 @@
+.outfit-themes{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 18px}
+.outfit-themes button{border:1px solid #efdee1;border-radius:18px;background:#fffaf8;padding:7px 14px;font-size:12px}
+.outfit-themes button.selected{background:#f7e4ed;border-color:#cc839c;color:#a64f70}
+.items [hidden]{display:none!important}
+@media(min-width:741px){.studio{position:sticky;top:20px}}
