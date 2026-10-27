@@ -13,7 +13,7 @@ let outfitRequest=0;
 const outfitLoads=new Map();
 function ensureOutfit(id){
  if(DollAssets[id])return Promise.resolve();
- if(!HeritageOutfits.some(item=>item.id===id))return Promise.reject(new Error('Unknown outfit'));
+ if(!Art.items.some(item=>item.cat==='dress'&&item.id===id))return Promise.reject(new Error('Unknown outfit'));
  if(outfitLoads.has(id))return outfitLoads.get(id);
  const promise=new Promise((resolve,reject)=>{
   const script=document.createElement('script');
@@ -61,7 +61,7 @@ $('#reset').onclick=()=>{change({...initial});toast('回到最初的心动搭配
 $('#random').onclick=()=>{const next={};for(const [cat] of categories){const list=Art.items.filter(x=>x.cat===cat);next[cat]=list[Math.floor(Math.random()*list.length)].id}applyLook(next)};
 $('#save').onclick=()=>{if(saved.some(x=>JSON.stringify(x)===JSON.stringify(state))){toast('这套已经在收藏里啦 ♡');return}if(saved.length>=30){toast('收藏已满 30 套，请先删除一套');return}saved.push({...state});const ok=persist();render();if(ok)toast('心动搭配已收藏 ♡')};
 function switchPanel(value){
- if(value){const missing=[...new Set(saved.map(look=>look.dress).filter(id=>id&&!DollAssets[id]&&HeritageOutfits.some(item=>item.id===id)))];if(missing.length){toast('正在打开收藏…');return Promise.all(missing.map(ensureOutfit)).then(()=>switchPanel(true)).catch(()=>toast('部分收藏加载失败，请重试'))}}
+ if(value){const missing=[...new Set(saved.map(look=>look.dress).filter(id=>id&&!DollAssets[id]&&Art.items.some(item=>item.cat==='dress'&&item.id===id)))];if(missing.length){toast('正在打开收藏…');return Promise.all(missing.map(ensureOutfit)).then(()=>switchPanel(true)).catch(()=>toast('部分收藏加载失败，请重试'))}}
  savedView=value;$('#closetNav').classList.toggle('active',!value);$('#savedNav').classList.toggle('active',value);renderItems()
 }
 $('#closetNav').onclick=()=>switchPanel(false);$('#savedNav').onclick=()=>switchPanel(true);
